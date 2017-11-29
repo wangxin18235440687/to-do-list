@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>to do list</title>
+	<script src="jquery.min.js"></script>
+	<link rel="stylesheet" href="base.css">
+</head>
+<style>
+	body{
+    background:#CDCDCD;
+    font-size: 16px;
+}
+header{
+    width: 100%;
+    height:50px;
+    background: #323232;
+}
+.h-header{
+    width:600px;
+    height: 100%;
+    margin:0 auto;
+}
+.h-header .h-left{
+    float: left;
+    height: 100%;
+    width: 100px;
+    font-size: 24px;
+    line-height: 50px;
+    color: #DDD;
+    text-align: center;
+    font-family: '微软雅黑';
+}
+.h-header .h-right{
+    float: right;
+    height: 100%;
+    width: 362px;
+}
+.h-header .h-right input{
+    margin-top: 12px;
+    text-indent: 10px;
+    border-radius: 5px;
+    height: 24px;
+    width: 100%;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.24), 0 1px 6px rgba(0,0,0,0.45) inset;
+    border: none;
+    outline: none;
+}
+section{
+    width: 600px;
+    padding: 0 10px;
+    margin: 0 auto;
+}
+section h2{
+    	display: block;
+		margin: 20px 0;
+		font-size: 24px;
+		font-family: '宋体';
+}
+section h2 span{
+   		color: #666;
+		padding: 2px 5px; 
+    	font-size: 12px;
+    	float: right;
+    	border-radius: 40%;
+    	background: #E6E6FA;
+    	margin-top:2px;
+}
+#todolist{
+    width: 100%;
+    height:auto;
+}
+li{
+    height: 32px;
+    line-height: 32px;
+    background: #fff;
+    position: relative;
+    margin-bottom: 10px;
+    padding: 0 45px;
+    border-radius: 3px;
+    border-left: 5px solid #629A9C;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+}
+li>input {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+li a {
+   	position: absolute;
+	top: 4px;
+	right: 5px;
+	display: inline-block;
+	width: 14px;
+	height: 12px;
+	border-radius: 14px;
+	border: 6px double #FFF;
+	background: #CCC;
+	line-height: 12px;
+	text-align: center;
+	color: #FFF;
+	font-weight: bold;
+	font-size: 10px;
+	cursor: pointer;
+}
+footer{
+    color: #666;
+    font-size: 14px;
+    text-align: center
+}
+footer a{
+    color: #999;
+}
+</style>
+<body>
+<header>
+    <div class="h-header">
+        <div class="h-left">ToDoList</div>
+        <div class="h-right">
+                <input type="text" id="title" name="title" placeholder="添加ToDo" required="required" autocomplete="off">
+        </div>
+    </div>
+</header>
+<section>
+    <h2 onclick="">正在进行 <span id="todocount">0</span></h2>
+    <ul id="todolist" class="demo-box"></ul>
+    <h2>已经完成 <span id="donecount">0</span></h2>
+    <ul id="donelist"></ul>
+</section>
+<footer>
+    Copyright © 2014 todolist.cn
+    <a href="javascript:;">clear</a>
+</footer>
+	
+</body>
+</html>
+<script>
+	$(document).ready(function(){
+    /*let arr=[
+        {id:1,content:'123',status:false},
+        {id:2,content:'456',status:true},
+        {id:3,content:'789',status:false},
+    ];
+    let nextId=4;*/
+    let nextId=0;
+    localStorage.nextId=nextId;
+    let arr=[];
+    function render(){
+        let str1='';
+        let str2='';
+        let count1=0;
+        let count2=0;
+        if (localStorage.data){
+            arr=JSON.parse(localStorage.data)
+        }
+        arr.forEach(function(val){
+            if (!val.status) {
+                str1+=`<li id="${val.id}">
+                <input type="checkbox" class="danxuan">
+                <p>${val.content}</p>
+                <a href="javascript:;" class="del">一</a>
+                </li>`;
+                count1++;
+            }else{
+                str2+=`<li id="${val.id}">
+                <input type="checkbox" class="danxuan" checked>
+                <p>${val.content}</p>
+                <a href="javascript:;" class="del">一</a
+                li>`;
+                count2++;
+            }
+        })
+
+        $("#todolist").html(str1);
+        $("#donelist").html(str2);
+        $('#todocount').html(count1);
+        $('#donecount').html(count2);
+    }
+    render();
+    $('section').on('click','.del',function () {
+        let idd=$(this).closest('li').attr('id');
+        let index=arr.findIndex(val=>val.id==idd)
+        arr.splice(index,1);
+        localStorage.data=JSON.stringify(arr);
+        render();
+    });
+    $('section').on('click','p',function () {
+        let idd=$(this).closest('li').attr('id');
+        let index=arr.findIndex(val=>val.id==idd)
+        let input=$('<input>');
+        let neirong= $(this).text();
+        $(this).html('');
+        $(this).append(input.val(neirong));
+        input.focus();
+        input.blur(function () {
+            if (!input.val()){
+                alert('不能为空值')
+                input.val(neirong)
+                console.log(neirong)
+            }
+            arr[index].content=input.val();
+            localStorage.data=JSON.stringify(arr);
+            render();
+        })
+    });
+    $('section').on('click','li>input',function () {
+        let idd=$(this).closest('li').attr('id');
+        let index=arr.findIndex(val=>val.id==idd)
+        arr[index].status=!arr[index].status;
+        localStorage.data=JSON.stringify(arr);
+        render();
+    });
+
+    $('#title').keyup(function (e) {
+        if(e.which==13){
+             let nextId=localStorage.nextId;
+            arr.push({id:nextId,content:$(this).val(),status:false});
+            localStorage.data=JSON.stringify(arr);
+            nextId++;
+            localStorage.nextId=nextId;
+            render();
+        }
+    })
+    $('footer a').click(function () {
+        delete localStorage.data;
+        $('#todolist').html('');
+        $('#donelist').html('');
+    })
+
+})
+
+
+
+
+
+
+
+</script>
